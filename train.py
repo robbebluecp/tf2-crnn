@@ -1,7 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
 import random
-import numpy as np
 from keras.preprocessing.sequence import pad_sequences
+from keras.models import *
+from keras.layers import *
+from keras.optimizers import *
 
 chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
@@ -12,7 +14,7 @@ def generator(batch_size):
         Y = []
         for i in range(batch_size):
             text = ''
-            for i in range(random.choice([4, 5])):
+            for i in range(random.choice([2, 7])):
                 text += random.choice(chars)
 
             image = Image.new("RGB", (128, 64), "white")
@@ -29,15 +31,9 @@ def generator(batch_size):
         yield [X, Y, input_length, label_length], np.zeros(batch_size)
 
 
-from keras.models import *
-from keras.layers import *
-from keras.optimizers import *
-
-
 def ctc_lambda_func(args):
     y_true,  y_pred, input_length, label_length = args
     return K.ctc_batch_cost(y_true, y_pred, input_length, label_length)
-
 
 
 input_tensor = Input((64, 128, 3))
@@ -57,7 +53,7 @@ x = Bidirectional(GRU(rnn_size, return_sequences=True))(x)
 x = Bidirectional(GRU(rnn_size, return_sequences=True))(x)
 y = Dense(len(chars) + 1, activation='softmax')(x)
 base_model = Model(inputs=input_tensor, outputs=y)
-
+base_model.summary()
 
 y_true = Input(name='the_labels', shape=[8], dtype='float32')
 # (1, )
@@ -70,7 +66,7 @@ model = Model(inputs=[input_tensor, y_true, input_length, label_length], outputs
 
 model.compile(loss={'ctc': lambda y_true, y_pred: y_pred}, optimizer=Adam(1e-3, amsgrad=True))
 model.fit_generator(generator=generator(16),
-                    epochs=100,
+                    epochs=20,
                     steps_per_epoch=100,
                     validation_steps=10,
                     validation_data=generator(4),
