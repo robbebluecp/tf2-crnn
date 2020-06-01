@@ -1,16 +1,23 @@
-# keras-crnn-core
-
-just运行train.py
-then运行predict.py
-就OK了
-
--------------------
-----------------
+# INTRODUCTION  
+CRNN bases on tf2 and tf.keras
 
 
-该project仅建立最简单的白底黑字字符图片集，对于复杂验证码或强噪音字符处理，可自行进行噪音添加
+# INSTALLATION  
+git clone https://github.com/robbebluecp/tf2-crnn.git
 
-### Reference: captcha.image.ImageCaptcha().generate_image()
-这里有一些简单的加噪音的函数，可供参考
+# FILES  
+ * font_data :-> a font file for text on pic
+ * model_train :-> for saving models or weights files
+ * generator :-> generator
+ * models :-> core crnn model
+ * predict :-> for predicting
+ * train :-> for training
+ 
+ # HOW TO USE  
+* run train.py then you can train on random letters data
+* run predict then you can use model trained by train.py to predict letters on pic
+ 
 
-引自：[https://github.com/ypwhs/captcha_break](https://github.com/ypwhs/captcha_break)
+ 
+ # RELATIONS  
+[https://github.com/ypwhs/captcha_break](https://github.com/ypwhs/captcha_break)

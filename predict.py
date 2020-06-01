@@ -1,35 +1,25 @@
-import keras
-import random
-from PIL import Image, ImageDraw, ImageFont
 import numpy as np
-from keras.preprocessing.sequence import pad_sequences
-
+import models
+from generator import generator
 
 chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+char_len = len(chars)
+target_len = 7
+input_shape = (64, 128, 3)
+batch_size = 16
 
+base_model = models.CRNN(char_len, target_len, input_shape)(return_base=True)
 
-model = keras.models.load_model('base_model.h5')
+base_model.load_weights('model_train/base_model.h5')
 
-X = []
-Y = []
-text = ''
-for i in range(random.choice([2, 7])):
-    text += random.choice(chars)
+g = generator(1, input_shape, chars, target_len, if_print=True)
 
-image = Image.new("RGB", (128, 64), "white")
-draw_table = ImageDraw.Draw(im=image)
-draw_table.text(xy=(0, 0), text=text, fill='#000000', font=ImageFont.truetype('SimHei.ttf', 50))
-img = np.asarray(image)
-img = img / 255.
-X.append(img)
-Y.append([chars.find(i) for i in text])
-X = np.asarray(X)
-Y = pad_sequences(Y, 8, padding='post', value=len(chars) + 1)
-print(X.shape)
-print(Y.shape)
+for [X, _, _, _], _ in g:
+    pred = base_model.predict(X)
+    pred = np.argmax(pred, -1)
 
-pred = model.predict(X)
-pred = np.argmax(pred, -1)
-for i in pred[0]:
-    if i != len(chars) + 1:
-        print(chars.find(i))
+    print(pred[0])
+    for i in pred[0]:
+        if i != len(chars):
+            print(chars[i])
+    break
